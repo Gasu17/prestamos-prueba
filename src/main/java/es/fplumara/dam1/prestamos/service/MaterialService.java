@@ -1,41 +1,55 @@
 package es.fplumara.dam1.prestamos.service;
 
 import es.fplumara.dam1.prestamos.exception.DuplicadoException;
+import es.fplumara.dam1.prestamos.exception.MaterialNoDisponibleException;
+import es.fplumara.dam1.prestamos.exception.NoEncontradoException;
+import es.fplumara.dam1.prestamos.model.EstadoMaterial;
 import es.fplumara.dam1.prestamos.model.Material;
-import es.fplumara.dam1.prestamos.model.Prestamo;
-import es.fplumara.dam1.prestamos.repository.BaseRepository;
 import es.fplumara.dam1.prestamos.repository.Repository;
 
-import java.time.LocalDate;
-import java.util.DuplicateFormatFlagsException;
 import java.util.List;
 import java.util.Optional;
 
 public class MaterialService {
 
 
-    Repository<Material> materialRepository;
+    private Repository<Material> materialRepository;
 
 
     void registrarMaterial(Material m) {
-        String id = m.getId();
-        if (String id.isEmpty())
-        Optional<Material> mat = materialRepository.findById(id);
-        if (mat.isPresent()) {
-            throw new DuplicadoException("Material Duplicado");
-        } else if (mat.isEmpty()) {
+        if (m.getId() == null) {
             throw new IllegalArgumentException("El id es null");
         }
-        materialRepository.Save(m);
 
+        Optional<Material> existe = materialRepository.findById(m.getId());
+        if (existe.isPresent()) {
+            throw new DuplicadoException("Material Duplicado");
+
+
+        }
+        materialRepository.save(m);
     }
 
     void darDeBaja(String idMaterial) {
+        Optional<Material> existe = materialRepository.findById(idMaterial);
+        if (existe.isEmpty()) {
+            throw new NoEncontradoException("El material no existe");
+        }
+        Material mat = existe.get();
+        EstadoMaterial estado = mat.getEstadoMaterial();
+
+        if (estado == EstadoMaterial.BAJA) {
+            throw new MaterialNoDisponibleException("El material ya esta de baja");
+        } else {
+            mat.setEstadoMaterial(EstadoMaterial.BAJA);
+        }
+
 
     }
 
     public List<Material> listar() {
 
-        return List.of();
+
+        return materialRepository.listAll();
     }
 }

@@ -12,7 +12,7 @@ public class BaseRepository<T extends Identificable> implements Repository<T> {
     Map<String, T> datos;
 
     @Override
-    public void Save(T e) {
+    public void save(T e) {
 
     }
 

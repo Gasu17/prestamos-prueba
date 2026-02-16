@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface Repository<T extends Identificable> {
 
-    void Save(T e);
+    void save(T e);
 
     Optional<T> findById(String id);
 
