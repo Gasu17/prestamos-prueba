@@ -1,4 +1,4 @@
-# Diagrama de clases (Mermaid)
+S# Diagrama de clases (Mermaid)
 
 Este diagrama sirve como referencia para implementar el modelo, repositorios y servicios del examen.
 **Debes crear tú las clases/interfaces/enums** en los paquetes indicados.
