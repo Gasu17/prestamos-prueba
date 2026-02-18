@@ -1,5 +1,6 @@
 package es.fplumara.dam1.prestamos.app;
 
+import es.fplumara.dam1.prestamos.csv.CSVMaterialExporter;
 import es.fplumara.dam1.prestamos.csv.CSVMaterialImporter;
 import es.fplumara.dam1.prestamos.csv.RegistroMaterialCsv;
 import es.fplumara.dam1.prestamos.exception.NoEncontradoException;
@@ -18,9 +19,8 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SplittableRandom;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Main de ejemplo para demostrar el flujo mínimo del examen (sin menú complejo).
@@ -36,6 +36,7 @@ public class Main {
         PrestamoRepositoryImpl prestamoRepository = new PrestamoRepositoryImpl();
 
         CSVMaterialImporter importer = new CSVMaterialImporter();
+        CSVMaterialExporter exporter = new CSVMaterialExporter();
         MaterialService materialService = new MaterialService(materialRepository);
         PrestamoService prestamoService = new PrestamoService(materialRepository, prestamoRepository);
 
@@ -70,11 +71,12 @@ public class Main {
 
         }
 
-        String id = "M001";
+        String idMaterial = "M001";
 
-        prestamoService.crearPrestamo(id, "Ivan", LocalDate.now());
 
-        Material mat = materialRepository.findById(id)
+        prestamoService.crearPrestamo(idMaterial, "ivan", LocalDate.now());
+
+        Material mat = materialRepository.findById(idMaterial)
                 .orElseThrow(() -> new NoEncontradoException("El material no ha sido encontrado"));
 
         if (mat.getEstadoMaterial() != EstadoMaterial.PRESTADO) {
@@ -94,19 +96,47 @@ public class Main {
             System.out.println("=======================================");
         });
 
-        prestamoRepository.listAll().forEach(m -> {
-            System.out.println("ID" + m.getId());
-            System.out.println("Nombre" + m.get);
-            System.out.println("ID" + m.getId());
-            System.out.println("ID" + m.getId());
+        prestamoService.listarPrestamos().forEach(m -> {
+            System.out.println("ID: " + m.getId());
+            System.out.println("idMaterial: " + m.getIdMaterial());
+            System.out.println("profesor: " + m.getProfesor());
+            System.out.println("fecha: " + m.getFecha());
         });
 
+        prestamoService.devolverMaterial(idMaterial);
+        System.out.println(materialRepository.findById(idMaterial).get().getEstadoMaterial());
 
 
+        List<Material> materiales = materialRepository.listAll();
+        List<RegistroMaterialCsv> csvs = new ArrayList<>();
 
+        for (Material m : materiales) {
+            if (m instanceof Portatil) {
+                RegistroMaterialCsv registroMaterialCsv = new RegistroMaterialCsv(
+                        m.getTipo(),
+                        m.getId(),
+                        m.getNombre(),
+                        m.getEstadoMaterial().toString(),
+                        ((Portatil) m).getRamGB(),
+                        m.getEtiquetas()
+                );
+                csvs.add(registroMaterialCsv);
+            } else if (m instanceof Proyector) {
+                RegistroMaterialCsv registroMaterialCsv = new RegistroMaterialCsv(
+                        m.getTipo(),
+                        m.getId(),
+                        m.getNombre(),
+                        m.getEstadoMaterial().toString(),
+                        ((Proyector) m).getLumens(),
+                        m.getEtiquetas()
+                        );
+                csvs.add(registroMaterialCsv);
+            }
 
+        }
 
-
+        exporter.escribir("data/materiales.csv", csvs);
+//
         /*
          * FLUJO MÍNIMO OBLIGATORIO (lo que debe hacer tu main)
          *

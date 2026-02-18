@@ -45,7 +45,7 @@ public class PrestamoService {
         return prestamo;
     }
 
-    void devolverMaterial(String idMaterial) {
+    public void devolverMaterial(String idMaterial) {
         if (idMaterial == null || idMaterial.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -59,7 +59,7 @@ public class PrestamoService {
         materialRepository.save(existe);
     }
 
-    List<Prestamo> listarPrestamos() {
+    public List<Prestamo> listarPrestamos() {
 
         return prestamoRepository.listAll();
     }

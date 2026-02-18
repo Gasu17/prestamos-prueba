@@ -19,4 +19,8 @@ public class Portatil extends Material{
     public String getTipo() {
         return "Portatil";
     }
+
+    public int getRamGB() {
+        return ramGB;
+    }
 }

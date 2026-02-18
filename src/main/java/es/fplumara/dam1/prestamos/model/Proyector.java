@@ -15,4 +15,8 @@ public class Proyector extends Material {
     public String getTipo() {
         return "Proyector";
     }
+
+    public int getLumens() {
+        return lumens;
+    }
 }
