@@ -17,20 +17,20 @@ public class BaseRepository<T extends Identificable> implements Repository<T> {
 
     @Override
     public void save(T e) {
+
         datos.put(e.getId(), e);
 
     }
 
     @Override
     public Optional<T> findById(String id) {
-
-
         return Optional.ofNullable(datos.get(id));
     }
 
     @Override
     public List<T> listAll() {
         return new ArrayList<>(datos.values());
+
     }
 
     @Override

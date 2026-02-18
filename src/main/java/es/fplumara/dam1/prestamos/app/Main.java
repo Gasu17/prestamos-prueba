@@ -1,13 +1,111 @@
 package es.fplumara.dam1.prestamos.app;
 
+import es.fplumara.dam1.prestamos.csv.CSVMaterialImporter;
+import es.fplumara.dam1.prestamos.csv.RegistroMaterialCsv;
+import es.fplumara.dam1.prestamos.exception.NoEncontradoException;
+import es.fplumara.dam1.prestamos.model.EstadoMaterial;
+import es.fplumara.dam1.prestamos.model.Material;
+import es.fplumara.dam1.prestamos.model.Portatil;
+import es.fplumara.dam1.prestamos.model.Proyector;
+import es.fplumara.dam1.prestamos.repository.MaterialRepositoryImpl;
+import es.fplumara.dam1.prestamos.repository.PrestamoRepositoryImpl;
+import es.fplumara.dam1.prestamos.service.MaterialService;
+import es.fplumara.dam1.prestamos.service.PrestamoService;
+import org.apache.commons.csv.CSVFormat;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SplittableRandom;
+
 /**
  * Main de ejemplo para demostrar el flujo mínimo del examen (sin menú complejo).
  * La idea es que este método ejecute una "demo" por consola.
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
         System.out.println("Examen DAM1 - Préstamo de Material (Java 21)");
+
+        MaterialRepositoryImpl materialRepository = new MaterialRepositoryImpl();
+        PrestamoRepositoryImpl prestamoRepository = new PrestamoRepositoryImpl();
+
+        CSVMaterialImporter importer = new CSVMaterialImporter();
+        MaterialService materialService = new MaterialService(materialRepository);
+        PrestamoService prestamoService = new PrestamoService(materialRepository, prestamoRepository);
+
+
+        List<RegistroMaterialCsv> datos = importer.leer("data/materiales.csv");
+
+        for (RegistroMaterialCsv r : datos) {
+            EstadoMaterial estado = EstadoMaterial.valueOf(r.estado());
+            if (r.tipo().equalsIgnoreCase("Portatil")) {
+
+                Portatil portatil = new Portatil(
+                        r.id(),
+                        r.nombre(),
+                        estado,
+                        r.etiquetas(),
+                        r.extra()
+                );
+                materialService.registrarMaterial(portatil);
+            } else if (r.tipo().equalsIgnoreCase("Proyector")) {
+
+                Proyector proyector = new Proyector(
+                        r.id(),
+                        r.nombre(),
+                        estado,
+                        r.etiquetas(),
+                        r.extra()
+                );
+                materialService.registrarMaterial(proyector);
+
+            }
+
+
+        }
+
+        String id = "M001";
+
+        prestamoService.crearPrestamo(id, "Ivan", LocalDate.now());
+
+        Material mat = materialRepository.findById(id)
+                .orElseThrow(() -> new NoEncontradoException("El material no ha sido encontrado"));
+
+        if (mat.getEstadoMaterial() != EstadoMaterial.PRESTADO) {
+            throw new NoEncontradoException("Material no cambiado a prestado");
+
+        }
+
+
+        materialService.listar().forEach(m -> {
+            System.out.println("ID: " + m.getId());
+
+            System.out.println("Nombre: " + m.getNombre());
+
+            System.out.println("Tipo: " + m.getTipo());
+            System.out.println("Estado: " + m.getEstadoMaterial());
+            System.out.println("Extra: " + m.getEtiquetas());
+            System.out.println("=======================================");
+        });
+
+        prestamoRepository.listAll().forEach(m -> {
+            System.out.println("ID" + m.getId());
+            System.out.println("Nombre" + m.get);
+            System.out.println("ID" + m.getId());
+            System.out.println("ID" + m.getId());
+        });
+
+
+
+
+
+
 
         /*
          * FLUJO MÍNIMO OBLIGATORIO (lo que debe hacer tu main)
@@ -28,6 +126,10 @@ public class Main {
          *        - Si tipo == "PROYECTOR" -> crear Proyector (extra = lumens)
          *      (aplicando estado y etiquetas)
          *    - Registrar cada Material llamando a MaterialService.registrarMaterial(...)
+
+
+         *
+         *
          *
          * 4) Crear un préstamo
          *    - Elegir un id de material existente (por ejemplo "M001").

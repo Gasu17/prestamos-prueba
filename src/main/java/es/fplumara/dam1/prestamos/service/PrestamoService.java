@@ -5,6 +5,7 @@ import es.fplumara.dam1.prestamos.exception.NoEncontradoException;
 import es.fplumara.dam1.prestamos.model.EstadoMaterial;
 import es.fplumara.dam1.prestamos.model.Material;
 import es.fplumara.dam1.prestamos.model.Prestamo;
+import es.fplumara.dam1.prestamos.repository.PrestamoRepositoryImpl;
 import es.fplumara.dam1.prestamos.repository.Repository;
 
 import java.time.LocalDate;
@@ -17,10 +18,16 @@ public class PrestamoService {
     Repository<Material> materialRepository;
     Repository<Prestamo> prestamoRepository;
 
+    public PrestamoService(Repository<Material> materialRepository, Repository<Prestamo> prestamoRepository) {
+        this.materialRepository = materialRepository;
+        this.prestamoRepository = prestamoRepository;
+    }
+
     public Prestamo crearPrestamo(String idMaterial, String profesor, LocalDate fecha) {
         if (idMaterial == null || profesor == null || fecha == null) {
             throw new IllegalArgumentException("No puede haber campos nulos");
         }
+
         Material existe = materialRepository.findById(idMaterial)
                 .orElseThrow(() -> new NoEncontradoException("Material no encontrado"));
 

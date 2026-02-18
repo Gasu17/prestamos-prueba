@@ -5,6 +5,7 @@ import es.fplumara.dam1.prestamos.exception.MaterialNoDisponibleException;
 import es.fplumara.dam1.prestamos.exception.NoEncontradoException;
 import es.fplumara.dam1.prestamos.model.EstadoMaterial;
 import es.fplumara.dam1.prestamos.model.Material;
+import es.fplumara.dam1.prestamos.repository.MaterialRepositoryImpl;
 import es.fplumara.dam1.prestamos.repository.Repository;
 
 import java.util.List;
@@ -15,13 +16,16 @@ public class MaterialService {
 
     private Repository<Material> materialRepository;
 
+    public MaterialService(Repository<Material> materialRepository) {
+        this.materialRepository = materialRepository;
+    }
 
-    void registrarMaterial(Material m) {
+    public void registrarMaterial(Material m) {
         if (m.getId() == null) {
             throw new IllegalArgumentException("El id es null");
         }
-
-        Optional<Material> existe = materialRepository.findById(m.getId());
+        String id = m.getId();
+        Optional<Material> existe = materialRepository.findById(id);
         if (existe.isPresent()) {
             throw new DuplicadoException("Material Duplicado");
 
