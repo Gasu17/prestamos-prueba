@@ -6,7 +6,7 @@ public class Proyector extends Material {
     int lumens;
 
     public Proyector(String id, String nombre, EstadoMaterial estado, Set<String> etiquetas, int lumens) {
-        super(id,nombre,estado,etiquetas);
+        super(id, nombre, estado, etiquetas);
         this.lumens = lumens;
     }
 

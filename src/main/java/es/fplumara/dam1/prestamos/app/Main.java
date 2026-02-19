@@ -45,7 +45,7 @@ public class Main {
 
         for (RegistroMaterialCsv r : datos) {
             EstadoMaterial estado = EstadoMaterial.valueOf(r.estado());
-            if (r.tipo().equalsIgnoreCase("Portatil")) {
+            if (r.tipo().equals("PORTATIL")) {
 
                 Portatil portatil = new Portatil(
                         r.id(),
@@ -55,7 +55,7 @@ public class Main {
                         r.extra()
                 );
                 materialService.registrarMaterial(portatil);
-            } else if (r.tipo().equalsIgnoreCase("Proyector")) {
+            } else if (r.tipo().equals("PROYECTOR")) {
 
                 Proyector proyector = new Proyector(
                         r.id(),
